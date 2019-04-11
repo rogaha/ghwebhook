@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"database/sql"
 
 	"github.com/google/go-github/github"
 )
@@ -26,6 +27,9 @@ type Webhook struct {
 
 	// TrustAddrs is the list of trusted IP address (e.g. reverse proxies)
 	TrustAddrs []string
+	
+	// Database
+	DB *sql.DB
 
 	CommitComment            func(e *github.CommitCommentEvent)
 	Create                   func(e *github.CreateEvent)
@@ -122,143 +126,143 @@ func (h *Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	go h.handle(e)
+	go h.handle(e, h.DB)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Webhook) handle(e interface{}) {
+func (h *Webhook) handle(e interface{}, db *sql.DB) {
 	switch e := e.(type) {
 	case *github.CommitCommentEvent:
 		if h.CommitComment != nil {
-			h.CommitComment(e)
+			h.CommitComment(e, db)
 		}
 	case *github.CreateEvent:
 		if h.Create != nil {
-			h.Create(e)
+			h.Create(e, db)
 		}
 	case *github.DeleteEvent:
 		if h.Delete != nil {
-			h.Delete(e)
+			h.Delete(e, db)
 		}
 	case *github.DeploymentEvent:
 		if h.Deployment != nil {
-			h.Deployment(e)
+			h.Deployment(e, db)
 		}
 	case *github.DeploymentStatusEvent:
 		if h.DeploymentStatus != nil {
-			h.DeploymentStatus(e)
+			h.DeploymentStatus(e, db)
 		}
 	case *github.ForkEvent:
 		if h.Fork != nil {
-			h.Fork(e)
+			h.Fork(e, db)
 		}
 	case *github.GollumEvent:
 		if h.Gollum != nil {
-			h.Gollum(e)
+			h.Gollum(e, db)
 		}
 	case *github.InstallationEvent:
 		if h.Installation != nil {
-			h.Installation(e)
+			h.Installation(e, db)
 		}
 	case *github.InstallationRepositoriesEvent:
 		if h.InstallationRepositories != nil {
-			h.InstallationRepositories(e)
+			h.InstallationRepositories(e, db)
 		}
 	case *github.IssueCommentEvent:
 		if h.IssueComment != nil {
-			h.IssueComment(e)
+			h.IssueComment(e, db)
 		}
 	case *github.IssuesEvent:
 		if h.Issues != nil {
-			h.Issues(e)
+			h.Issues(e, db)
 		}
 	case *github.LabelEvent:
 		if h.Label != nil {
-			h.Label(e)
+			h.Label(e, db)
 		}
 	case *github.MemberEvent:
 		if h.Member != nil {
-			h.Member(e)
+			h.Member(e, db)
 		}
 	case *github.MembershipEvent:
 		if h.Membership != nil {
-			h.Membership(e)
+			h.Membership(e, db)
 		}
 	case *github.MilestoneEvent:
 		if h.Milestone != nil {
-			h.Milestone(e)
+			h.Milestone(e, db)
 		}
 	case *github.OrganizationEvent:
 		if h.Organization != nil {
-			h.Organization(e)
+			h.Organization(e, db)
 		}
 	case *github.OrgBlockEvent:
 		if h.OrgBlock != nil {
-			h.OrgBlock(e)
+			h.OrgBlock(e, db)
 		}
 	case *github.PageBuildEvent:
 		if h.PageBuild != nil {
-			h.PageBuild(e)
+			h.PageBuild(e, db)
 		}
 	case *github.PingEvent:
 		if h.Ping != nil {
-			h.Ping(e)
+			h.Ping(e, db)
 		}
 	case *github.ProjectEvent:
 		if h.Project != nil {
-			h.Project(e)
+			h.Project(e, db)
 		}
 	case *github.ProjectCardEvent:
 		if h.ProjectCard != nil {
-			h.ProjectCard(e)
+			h.ProjectCard(e, db)
 		}
 	case *github.ProjectColumnEvent:
 		if h.ProjectColumn != nil {
-			h.ProjectColumn(e)
+			h.ProjectColumn(e, db)
 		}
 	case *github.PublicEvent:
 		if h.Public != nil {
-			h.Public(e)
+			h.Public(e, db)
 		}
 	case *github.PullRequestReviewEvent:
 		if h.PullRequestReview != nil {
-			h.PullRequestReview(e)
+			h.PullRequestReview(e, db)
 		}
 	case *github.PullRequestReviewCommentEvent:
 		if h.PullRequestReviewComment != nil {
-			h.PullRequestReviewComment(e)
+			h.PullRequestReviewComment(e, db)
 		}
 	case *github.PullRequestEvent:
 		if h.PullRequest != nil {
-			h.PullRequest(e)
+			h.PullRequest(e, db)
 		}
 	case *github.PushEvent:
 		if h.Push != nil {
-			h.Push(e)
+			h.Push(e, db)
 		}
 	case *github.RepositoryEvent:
 		if h.Repository != nil {
-			h.Repository(e)
+			h.Repository(e, db)
 		}
 	case *github.ReleaseEvent:
 		if h.Release != nil {
-			h.Release(e)
+			h.Release(e, db)
 		}
 	case *github.StatusEvent:
 		if h.Status != nil {
-			h.Status(e)
+			h.Status(e, db)
 		}
 	case *github.TeamEvent:
 		if h.Team != nil {
-			h.Team(e)
+			h.Team(e, db)
 		}
 	case *github.TeamAddEvent:
 		if h.TeamAdd != nil {
-			h.TeamAdd(e)
+			h.TeamAdd(e, db)
 		}
 	case *github.WatchEvent:
 		if h.Watch != nil {
-			h.Watch(e)
+			h.Watch(e, db)
 		}
 	}
 }
